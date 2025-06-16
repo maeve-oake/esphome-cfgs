@@ -1,0 +1,15 @@
+substitutions:
+  name: "voice-maeve"
+  friendly_name: Voice Maeve
+
+packages:
+  base: !include common/base.yaml
+  Nabu Casa.Home Assistant Voice PE: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml@dev
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+
+wifi:
+  power_save_mode: none

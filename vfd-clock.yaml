@@ -1,0 +1,58 @@
+substitutions:
+  name: vfd-clock
+  friendly_name: VFD Clock
+
+packages:
+  base: !include common/base.yaml
+  vfd-esp: github://oake/vfd-esp/esphome/package.yaml
+
+number:
+  - platform: template
+    name: "Brightness"
+    optimistic: true
+    min_value: 1
+    max_value: 100
+    step: 1
+    set_action:
+      then:
+        - lambda: |-
+            id(vfd).set_brightness(x / 100.0);
+
+font:
+  - file: "fonts/hunter.ttf"
+    id: f_smol
+    size: 9
+    bpp: 1
+  - file:
+      url: "https://github.com/IdreesInc/Monocraft/releases/download/v3.0/Monocraft.ttf"
+      type: web
+    id: f_main
+    size: 36
+  - file: "fonts/vhs.ttf"
+    id: f_vhs
+    size: 34
+
+time:
+  - platform: homeassistant
+    timezone: Europe/London
+    id: tm
+
+display:
+  - id: !extend vfd
+    brightness: 1%
+    lambda: |-
+      auto now = id(tm).now();
+
+      it.rectangle(0, 0, 207, 48);
+      it.strftime(103, 23, id(f_main), TextAlign::CENTER, "%H:%M:%S", now);
+
+      it.rectangle(208, 0, 48, 48);
+      it.filled_rectangle(208, 0, 48, 11);
+
+      std::string day = now.strftime("%a");
+      for (int i = 0; i < day.length(); i++)
+        day[i] = toupper(day[i]);
+      it.print(232, 1, id(f_smol), COLOR_OFF, TextAlign::TOP_CENTER, day.c_str());
+
+      // date - 46x37
+      it.strftime(233, 32, id(f_vhs), TextAlign::CENTER, "%d", now);
