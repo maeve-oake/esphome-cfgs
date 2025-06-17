@@ -1,0 +1,12 @@
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_key
+
+host:
+  mac_address: "ba:ba:de:da:be:ef"
