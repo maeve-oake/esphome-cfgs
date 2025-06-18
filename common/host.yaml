@@ -9,4 +9,4 @@ api:
     key: !secret api_key
 
 host:
-  mac_address: "ba:ba:de:da:be:ef"
+  mac_address: "ba:b1:de:da:be:ef"
