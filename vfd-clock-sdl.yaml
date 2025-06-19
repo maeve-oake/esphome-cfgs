@@ -9,12 +9,8 @@ font:
   - file: "fonts/hunter.ttf"
     id: f_hunter
     size: 9
-    bpp: 1
-  - file:
-      url: "https://github.com/IdreesInc/Monocraft/releases/download/v3.0/Monocraft.ttf"
-      type: web
+  - file: "fonts/pixel.ttf"
     id: f_main
-    size: 20
   - file: "fonts/vhs.ttf"
     id: f_vhs
     size: 34
@@ -70,13 +66,26 @@ display:
     lambda: |-
       auto now = id(tm).now();
 
-      // big frame
-      // it.rectangle(0, 0, 207, 48);
-      // top bar
-      // it.line(0, 10, 206, 10);
-
+      // clock frame
+      const int cl_x = 5;
+      const int cl_y = 5;
+      const int cl_wx = 96;
+      const int cl_wy = 22;
+      // white background
+      it.filled_rectangle(cl_x + 1, cl_y, cl_wx, cl_wy + 2);
+      it.filled_rectangle(cl_x, cl_y + 1, cl_wx + 2, cl_wy);
+      // border 
+      it.line(cl_x, cl_y - 2, cl_x + cl_wx + 1, cl_y -2);
+      it.line(cl_x, cl_y + cl_wy +3, cl_x + cl_wx + 1, cl_y + cl_wy +3);
+      it.line(cl_x -2, cl_y, cl_x -2, cl_y + cl_wy +1);
+      it.line(cl_x + cl_wx +3, cl_y, cl_x + cl_wx +3, cl_y + cl_wy +1);
+      // border corners
+      it.line(cl_x -1,           cl_y -1,          cl_x -1,           cl_y -1);
+      it.line(cl_x -1,           cl_y + cl_wy + 2, cl_x -1,           cl_y + cl_wy + 2);
+      it.line(cl_x + cl_wx + 2,  cl_y -1,          cl_x + cl_wx + 2,  cl_y -1);
+      it.line(cl_x + cl_wx + 2,  cl_y + cl_wy + 2, cl_x + cl_wx + 2,  cl_y + cl_wy + 2);
       // clock
-      it.strftime(50, 38, id(f_main), TextAlign::CENTER, "%H:%M:%S", now);
+      it.strftime(cl_x + 2, cl_y + 7, id(f_main), COLOR_OFF, TextAlign::TOP_LEFT, "%H:%M:%S", now);
 
       // calendar frame
       const int calf_x = 208;
