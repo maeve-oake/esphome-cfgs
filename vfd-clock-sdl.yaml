@@ -96,7 +96,7 @@ display:
       std::string day = now.strftime("%a");
       for (int i = 0; i < day.length(); i++)
         day[i] = toupper(day[i]);
-      it.print(calf_x + 24, calf_y + 1, id(f_cal), COLOR_OFF, TextAlign::TOP_CENTER, day.c_str());
+      it.print(calf_x + 24, calf_y + 2, id(f_cal), COLOR_OFF, TextAlign::TOP_CENTER, day.c_str());
       // calendar date
       it.strftime(calf_x + 25, calf_y + 32, id(f_vhs), TextAlign::CENTER, "%d", now);
 
