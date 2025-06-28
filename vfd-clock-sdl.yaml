@@ -10,9 +10,8 @@ font:
     id: f_cal
   - file: "fonts/pixel.ttf"
     id: f_main
-  - file: "fonts/vhs.ttf"
+  - file: "fonts/VHS_SMOOTH.bdf"
     id: f_vhs
-    size: 34
   - file: "fonts/MatrixChunky8X.bdf"
     id: f_matrix
   - file: "fonts/UV.bdf"
@@ -98,7 +97,7 @@ display:
         day[i] = toupper(day[i]);
       it.print(calf_x + 24, calf_y + 2, id(f_cal), COLOR_OFF, TextAlign::TOP_CENTER, day.c_str());
       // calendar date
-      it.strftime(calf_x + 25, calf_y + 32, id(f_vhs), TextAlign::CENTER, "%d", now);
+      it.strftime(calf_x + 25, calf_y + 15, id(f_vhs), TextAlign::TOP_CENTER, "%d", now);
 
       // weather frame
       const int wf_x = 150;
