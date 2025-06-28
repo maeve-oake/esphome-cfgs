@@ -1,9 +1,22 @@
 substitutions:
-  name: vfd-clock-sdl
-  friendly_name: VFD Clock SDL
+  name: vfd-clock
+  friendly_name: VFD Clock
 
 packages:
-  host: !include common/host.yaml
+  base: !include common/base.yaml
+  vfd-esp: github://oake/vfd-esp/esphome/package.yaml
+
+number:
+  - platform: template
+    name: "Brightness"
+    optimistic: true
+    min_value: 1
+    max_value: 100
+    step: 1
+    set_action:
+      then:
+        - lambda: |-
+            id(vfd).set_brightness(x / 100.0);
 
 font:
   - file: "fonts/cal.bdf"
@@ -38,30 +51,9 @@ time:
     timezone: Europe/London
     id: tm
 
-# sensor:
-#   - platform: homeassistant
-#     id: w_temp
-#     entity_id: sensor.knmi_temperature
-#     # entity_id: sensor.weather_home_temperature
-#   - platform: homeassistant
-#     id: w_high_temp
-#     entity_id: knmi_max_temperature_today
-#     # entity_id: sensor.weather_home_high_temperature
-#   - platform: homeassistant
-#     id: w_low_temp
-#     entity_id: knmi_min_temperature_today
-#     # entity_id: sensor.weather_home_low_temperature
-#   # - platform: homeassistant
-#   #   id: w_uv
-#   #   entity_id: sensor.weather_home_uv_index
-
 display:
-  - platform: sdl
-    id: vfd
-    update_interval: 1s
-    dimensions:
-      width: 256
-      height: 48
+  - id: !extend vfd
+    brightness: 1%
     lambda: |-
       auto now = id(tm).now();
 
@@ -124,3 +116,4 @@ display:
       // it.line(hlf_x + 4, hlf_y + 13, hlf_x + 29, hlf_y + 13);
       // low 
       it.printf(hlf_x + 3, hlf_y + 16, id(f_matrix), "LO %.0f °C", -8.9f);
+
