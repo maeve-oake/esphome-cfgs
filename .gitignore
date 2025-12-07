@@ -4,3 +4,5 @@ __pycache__
 .direnv
 
 secrets.yaml
+
+front-door.yaml

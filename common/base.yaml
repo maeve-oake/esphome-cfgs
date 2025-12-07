@@ -21,3 +21,8 @@ wifi:
     password: !secret ap_password
 
 captive_portal:
+
+external_components:
+  - source:
+      type: local
+      path: components
