@@ -1,0 +1,6 @@
+substitutions:
+  name: monitor-plug-3
+  friendly_name: Monitor Plug 3
+
+packages:
+  device: !include devices/monitor-plug.yaml
