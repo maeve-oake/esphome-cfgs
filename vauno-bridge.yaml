@@ -1,0 +1,74 @@
+substitutions:
+  name: vauno-bridge
+  friendly_name: Vauno Bridge
+
+packages:
+  base: !include common/base.yaml
+
+esp8266:
+  board: d1_mini
+
+external_components:
+  - source: github://pr#11849
+    components: [cc1101]
+    refresh: 1h
+
+spi:
+  clk_pin: D5
+  mosi_pin: D7
+  miso_pin: D6
+
+cc1101:
+  cs_pin: 15
+
+remote_receiver:
+  pin: 4
+
+logger:
+  level: DEBUG
+
+esphome:
+  devices:
+    - id: vauno_1
+      name: "Vauno sensor 1"
+    - id: vauno_2
+      name: "Vauno sensor 2"
+    - id: vauno_3
+      name: "Vauno sensor 3"
+    - id: vauno_4
+      name: "Vauno sensor 4"
+    - id: vauno_5
+      name: "Vauno sensor 5"
+    - id: vauno_6
+      name: "Vauno sensor 6"
+    - id: vauno_7
+      name: "Vauno sensor 7"
+    - id: vauno_8
+      name: "Vauno sensor 8"
+
+vauno:
+  sensors:
+    - id: 0xbf
+      channel: 1
+      device_id: vauno_1
+    - id: 0xdf
+      channel: 3
+      device_id: vauno_2
+    - id: 0x49
+      channel: 3
+      device_id: vauno_3
+    - id: 0xe5
+      channel: 3
+      device_id: vauno_4
+    - id: 0x9e
+      channel: 3
+      device_id: vauno_5
+    - id: 0xe8
+      channel: 3
+      device_id: vauno_6
+    - id: 0xa8
+      channel: 3
+      device_id: vauno_7
+    - id: 0x74
+      channel: 3
+      device_id: vauno_8
