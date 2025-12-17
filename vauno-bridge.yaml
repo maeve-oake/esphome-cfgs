@@ -8,11 +8,6 @@ packages:
 esp8266:
   board: d1_mini
 
-external_components:
-  - source: github://pr#11849
-    components: [cc1101]
-    refresh: 1h
-
 spi:
   clk_pin: D5
   mosi_pin: D7
