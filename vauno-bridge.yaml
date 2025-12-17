@@ -5,6 +5,9 @@ substitutions:
 packages:
   base: !include common/base.yaml
 
+external_components:
+  - source: github://anna-oake/esphome-vauno
+
 esp8266:
   board: d1_mini
 
@@ -15,12 +18,11 @@ spi:
 
 cc1101:
   cs_pin: 15
+  frequency: 433.92MHz
 
 remote_receiver:
   pin: 4
-
-logger:
-  level: DEBUG
+  idle: 20ms
 
 esphome:
   devices:
