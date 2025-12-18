@@ -1,0 +1,33 @@
+substitutions:
+  name: quinetic-bridge
+  friendly_name: Quinetic Bridge
+
+packages:
+  base: !include common/base.yaml
+
+external_components:
+  - source: github://anna-oake/esphome-quinetic
+
+esp8266:
+  board: d1_mini
+
+spi:
+  clk_pin: D5
+  mosi_pin: D7
+  miso_pin: D6
+
+cc1101:
+  cs_pin: 15
+  gdo0_pin: 5
+
+quinetic:
+
+light:
+  - platform: quinetic
+    address: 0xB000EE85
+    name: "Maeve's room Ceiling light"
+    icon: mdi:ceiling-light
+  - platform: quinetic
+    address: 0xB000E331
+    name: "Zoë's room Ceiling light"
+    icon: mdi:ceiling-light
