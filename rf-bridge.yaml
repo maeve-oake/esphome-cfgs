@@ -1,0 +1,103 @@
+substitutions:
+  name: rf-bridge
+  friendly_name: RF Bridge
+
+packages:
+  base: !include common/base.yaml
+  rf-bridge: github://oake/rf-bridge/package.yaml
+
+external_components:
+  - source: github://anna-oake/esphome-quinetic
+  - source: github://anna-oake/esphome-vauno
+
+# this creates sub-devices to make it pretty in Home Assistant
+esphome:
+  devices:
+    - id: quinetic_maeve
+      name: "Quinetic Maeve"
+    - id: quinetic_zoe
+      name: "Quinetic Zoë"
+    - id: vauno_1
+      name: "Vauno sensor 1"
+    - id: vauno_2
+      name: "Vauno sensor 2"
+    - id: vauno_3
+      name: "Vauno sensor 3"
+    - id: vauno_4
+      name: "Vauno sensor 4"
+    - id: vauno_5
+      name: "Vauno sensor 5"
+    - id: vauno_6
+      name: "Vauno sensor 6"
+    - id: vauno_7
+      name: "Vauno sensor 7"
+    - id: vauno_8
+      name: "Vauno sensor 8"
+
+#
+# Quinetic starts here
+#
+
+quinetic:
+  cc1101_id: radio_1
+
+binary_sensor:
+  - platform: quinetic
+    device_id: quinetic_maeve
+    name: "Wall switch"
+    address: 0x7F31
+  - platform: quinetic
+    device_id: quinetic_maeve
+    name: "Extra switch"
+    address: 0xFF86
+  - platform: quinetic
+    device_id: quinetic_zoe
+    name: "Wall switch"
+    address: 0xA39C
+
+light:
+  - platform: quinetic
+    address: 0xB000EE85
+    device_id: quinetic_maeve
+    name: "Ceiling light"
+    icon: mdi:ceiling-light
+  - platform: quinetic
+    address: 0xB000E331
+    device_id: quinetic_zoe
+    name: "Ceiling light"
+    icon: mdi:ceiling-light
+
+#
+# Vauno starts here
+#
+
+remote_receiver:
+  pin: ${radio_2_gdo2}
+  idle: 20ms
+
+vauno:
+  sensors:
+    - id: 0xbf
+      channel: 1
+      device_id: vauno_1
+    - id: 0xdf
+      channel: 3
+      device_id: vauno_2
+    - id: 0x49
+      channel: 3
+      device_id: vauno_3
+    - id: 0xe5
+      channel: 3
+      device_id: vauno_4
+    - id: 0x9e
+      channel: 3
+      device_id: vauno_5
+    - id: 0xe8
+      channel: 3
+      device_id: vauno_6
+    - id: 0xa8
+      channel: 3
+      device_id: vauno_7
+    - id: 0x74
+      channel: 3
+      device_id: vauno_8
