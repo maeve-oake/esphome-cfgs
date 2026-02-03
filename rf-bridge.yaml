@@ -39,7 +39,7 @@ esphome:
 #
 
 quinetic:
-  cc1101_id: radio_1
+  cc1101_id: radio_2
 
 binary_sensor:
   - platform: quinetic
@@ -72,7 +72,7 @@ light:
 #
 
 remote_receiver:
-  pin: ${radio_2_gdo2}
+  pin: ${radio_1_gdo2}
   idle: 20ms
 
 vauno:
@@ -101,3 +101,11 @@ vauno:
     - id: 0x74
       channel: 3
       device_id: vauno_8
+
+debug:
+  update_interval: 5s
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "Reset Reason"
