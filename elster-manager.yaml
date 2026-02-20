@@ -1,0 +1,148 @@
+substitutions:
+  name: elster-manager
+  friendly_name: Elster Manager
+
+packages:
+  base: !include common/base.yaml
+
+esp32:
+  board: seeed_xiao_esp32s3
+
+binary_sensor:
+  - platform: gpio
+    id: active
+    internal: true
+    pin:
+      number: GPIO3
+    filters:
+      - delayed_off: 300ms
+    on_state:
+      - component.update: state
+  - platform: gpio
+    id: sleeping
+    internal: true
+    pin:
+      number: GPIO4
+    filters:
+      - delayed_off: 300ms
+    on_state:
+      - component.update: state
+
+text_sensor:
+  - platform: template
+    id: state
+    name: State
+    icon: mdi:desktop-classic
+    lambda: |-
+      if (id(active).state) {
+        return {"On"};
+      } else if (id(sleeping).state) {
+        return {"Sleeping"};
+      } else {
+        return {"Off"};
+      }
+    update_interval: 30s
+
+output:
+  - platform: gpio
+    id: power_btn
+    inverted: true
+    pin:
+      number: GPIO1
+      mode:
+        output: true
+        open_drain: true
+  - platform: gpio
+    id: reset_btn
+    inverted: true
+    pin:
+      number: GPIO2
+      mode:
+        output: true
+        open_drain: true
+
+button:
+  - platform: template
+    id: power_button
+    name: Power
+    icon: mdi:power
+    on_press:
+      then:
+        - output.turn_on: power_btn
+        - delay: 100ms
+        - output.turn_off: power_btn
+  - platform: template
+    name: Hold Power
+    icon: mdi:lightning-bolt
+    on_press:
+      then:
+        - output.turn_on: power_btn
+        - delay: 5s
+        - output.turn_off: power_btn
+  - platform: template
+    name: Reset
+    icon: mdi:restart
+    on_press:
+      then:
+        - output.turn_on: reset_btn
+        - delay: 100ms
+        - output.turn_off: reset_btn
+
+switch:
+  - platform: template
+    name: "Elster"
+    icon: mdi:desktop-classic
+    lambda: |-
+      return id(state).state == "On";
+    turn_on_action:
+      - button.press: power_button
+    turn_off_action:
+      - button.press: power_button
+
+tinyusb:
+  usb_vendor_id: 0x1337
+  usb_product_id: 0x0228
+  usb_lang_id: 0x0809 # English (United Kingdom)
+  usb_manufacturer_str: "Rotfront"
+  usb_product_str: "Elster Decider"
+
+decider_usb:
+  id: decider
+
+select:
+  - platform: template
+    id: boot_option
+    name: "Next boot"
+    optimistic: true
+    restore_value: true
+    initial_option: Linux
+    options:
+      - Linux
+      - Windows
+      - UEFI
+    on_value:
+      - if:
+          condition:
+            lambda: return x == "Linux";
+          then:
+            - decider_usb.set_boot_option:
+                id: decider
+                choice_type: "nixos-current"
+      - if:
+          condition:
+            lambda: return x == "Windows";
+          then:
+            - decider_usb.set_boot_option:
+                id: decider
+                choice_type: "chainload_windows"
+      - if:
+          condition:
+            lambda: return x == "UEFI";
+          then:
+            - decider_usb.set_boot_option:
+                id: decider
+                choice_type: "entry_id"
+                entry_id: "auto-reboot-to-firmware-setup"
+
+bluetooth_proxy:
+  active: false
