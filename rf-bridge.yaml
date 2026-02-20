@@ -109,3 +109,6 @@ text_sensor:
   - platform: debug
     reset_reason:
       name: "Reset Reason"
+
+bluetooth_proxy:
+  active: false
