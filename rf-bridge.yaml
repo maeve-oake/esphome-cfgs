@@ -80,7 +80,7 @@ vauno:
     - id: 0xbf
       channel: 1
       device_id: vauno_1
-    - id: 0xdf
+    - id: 0x8a
       channel: 3
       device_id: vauno_2
     - id: 0x49
@@ -89,7 +89,7 @@ vauno:
     - id: 0xe5
       channel: 3
       device_id: vauno_4
-    - id: 0x9e
+    - id: 0xbe
       channel: 3
       device_id: vauno_5
     - id: 0xe8
