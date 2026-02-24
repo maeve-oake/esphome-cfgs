@@ -1,14 +1,12 @@
 substitutions:
   name: "voice-maeve"
-  friendly_name: Voice Maeve
+  friendly_name: Maeve's room Voice
 
 packages:
+  voice: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml@dev
   base: !include common/base.yaml
-  Nabu Casa.Home Assistant Voice PE: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml@dev
 
 esphome:
-  name: ${name}
-  friendly_name: ${friendly_name}
   name_add_mac_suffix: false
 
 wifi:
