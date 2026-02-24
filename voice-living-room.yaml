@@ -1,0 +1,13 @@
+substitutions:
+  name: "voice-living-room"
+  friendly_name: Living room Voice
+
+packages:
+  voice: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml@dev
+  base: !include common/base.yaml
+
+esphome:
+  name_add_mac_suffix: false
+
+wifi:
+  power_save_mode: none
