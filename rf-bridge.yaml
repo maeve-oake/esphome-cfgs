@@ -17,6 +17,8 @@ esphome:
       name: "Quinetic Maeve"
     - id: quinetic_zoe
       name: "Quinetic Zoë"
+    - id: quinetic_front_door
+      name: "Quinetic Front door"
     - id: vauno_1
       name: "Vauno sensor 1"
     - id: vauno_2
@@ -47,13 +49,13 @@ binary_sensor:
     name: "Wall switch"
     address: 0x7F31
   - platform: quinetic
-    device_id: quinetic_maeve
-    name: "Extra switch"
-    address: 0xFF86
-  - platform: quinetic
     device_id: quinetic_zoe
     name: "Wall switch"
     address: 0xA39C
+  - platform: quinetic
+    device_id: quinetic_front_door
+    name: "Doorbell"
+    address: 0xFF86
 
 light:
   - platform: quinetic
