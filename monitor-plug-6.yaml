@@ -1,6 +1,6 @@
 substitutions:
-  name: monitor-plug-1
-  friendly_name: Monitor plug 1
+  name: monitor-plug-6
+  friendly_name: Monitor plug 6
 
 packages:
   device: !include devices/monitor-plug.yaml
