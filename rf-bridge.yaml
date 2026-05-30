@@ -10,6 +10,9 @@ external_components:
   - source: github://anna-oake/esphome-quinetic
   - source: github://anna-oake/esphome-vauno
 
+api:
+  homeassistant_services: true
+
 # this creates sub-devices to make it pretty in Home Assistant
 esphome:
   devices:
@@ -19,22 +22,6 @@ esphome:
       name: "Quinetic Zoë"
     - id: quinetic_front_door
       name: "Quinetic Front door"
-    - id: vauno_1
-      name: "Vauno sensor 1"
-    - id: vauno_2
-      name: "Vauno sensor 2"
-    - id: vauno_3
-      name: "Vauno sensor 3"
-    - id: vauno_4
-      name: "Vauno sensor 4"
-    - id: vauno_5
-      name: "Vauno sensor 5"
-    - id: vauno_6
-      name: "Vauno sensor 6"
-    - id: vauno_7
-      name: "Vauno sensor 7"
-    - id: vauno_8
-      name: "Vauno sensor 8"
 
 #
 # Quinetic starts here
@@ -70,39 +57,34 @@ light:
     icon: mdi:ceiling-light
 
 #
-# Vauno starts here
+# RF Remote starts here
 #
 
 remote_receiver:
+  id: radio_1_rx
   pin: ${radio_1_gdo2}
-  idle: 20ms
+  on_rc_switch:
+    - lambda: |-
+        if ((x.code >> 8) != 0xE409)
+          return;
 
-vauno:
-  sensors:
-    - id: 0xbf
-      channel: 1
-      device_id: vauno_1
-    - id: 0x8a
-      channel: 3
-      device_id: vauno_2
-    - id: 0x49
-      channel: 3
-      device_id: vauno_3
-    - id: 0xe5
-      channel: 3
-      device_id: vauno_4
-    - id: 0xbe
-      channel: 3
-      device_id: vauno_5
-    - id: 0xe8
-      channel: 3
-      device_id: vauno_6
-    - id: 0xa8
-      channel: 3
-      device_id: vauno_7
-    - id: 0x74
-      channel: 3
-      device_id: vauno_8
+        uint8_t key = x.code & 0xFF;
+        if (key == 0x00 || key > 0x15 ||
+            key == 0x02 || key == 0x0B || key == 0x14)
+          return;
+
+        uint8_t key_id = key
+          - (key >= 0x02)
+          - (key >= 0x0B)
+          - (key >= 0x14);
+
+        ESP_LOGI("rf_remote", "Received key 0x%02X -> button %u", key, key_id);
+
+        esphome::api::CustomAPIDevice api;
+        api.fire_homeassistant_event(
+          "esphome.rf_remote_key_pressed",
+          {{"key_id", std::to_string(key_id)}}
+        );
 
 debug:
   update_interval: 5s
