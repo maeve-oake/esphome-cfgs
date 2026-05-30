@@ -12,5 +12,5 @@ esphome:
 wifi:
   power_save_mode: none
 
-bluetooth_proxy:
-  active: false
+# bluetooth_proxy:
+#   active: false
