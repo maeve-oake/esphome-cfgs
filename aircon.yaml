@@ -1,0 +1,105 @@
+substitutions:
+  name: aircon
+  friendly_name: Aircon
+
+packages:
+  base: !include common/base.yaml
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+  baud_rate: 0
+
+uart:
+  rx_pin: GPIO3
+  tx_pin: GPIO0
+  baud_rate: 9600
+
+tuya:
+  ignore_mcu_update_on_datapoints:
+    - 19 # celsius/f*renheit enum
+    - 110 # heating unsupported bool (we know it's unsupported lol)
+    - 109 # anti mould mode switch (we don't have it)
+  on_datapoint_update:
+    - sensor_datapoint: 106
+      datapoint_type: bitmask
+      then:
+        - lambda: |-
+            id(fault_tank_full).publish_state((x & 1) != 0);
+            id(fault_defrost).publish_state((x & 16) != 0);
+            id(fault_other).publish_state(!(x == 0 || x == 1 || x == 16));
+
+climate:
+  - platform: tuya
+    name: "Aircon"
+    icon: mdi:air-conditioner
+    switch_datapoint: 1
+    target_temperature_datapoint: 2
+    current_temperature_datapoint: 3
+
+    supports_cool: true
+    supports_heat: false
+
+    active_state:
+      datapoint: 4
+      cooling_value: 0
+      fanonly_value: 1
+      drying_value: 2
+
+    fan_mode:
+      datapoint: 5
+      low_value: 0
+      medium_value: 1
+      high_value: 2
+
+    swing_mode:
+      vertical_datapoint: 104
+
+    preset:
+      sleep:
+        datapoint: 101
+
+number:
+  - platform: tuya
+    name: "Timer"
+    number_datapoint: 103
+    min_value: 0
+    max_value: 24
+    step: 1
+    unit_of_measurement: h
+    icon: mdi:timer-edit
+
+sensor:
+  - platform: tuya
+    name: "Time remaining"
+    sensor_datapoint: 105
+    unit_of_measurement: min
+    icon: mdi:timer-sand-complete
+
+binary_sensor:
+  - platform: tuya
+    name: "Defrost cycle"
+    sensor_datapoint: 102
+    icon: mdi:snowflake-melt
+
+  - platform: template
+    id: fault_tank_full
+    name: "Tank full"
+    device_class: problem
+    icon: mdi:gauge-full
+
+  - platform: template
+    id: fault_defrost
+    name: "Defrost fault"
+    entity_category: diagnostic
+    device_class: problem
+    icon: mdi:car-defrost-front
+
+  - platform: template
+    id: fault_other
+    name: "Fault"
+    entity_category: diagnostic
+    device_class: problem
