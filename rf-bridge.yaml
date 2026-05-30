@@ -96,3 +96,9 @@ text_sensor:
 
 bluetooth_proxy:
   active: false
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
+    interval: 800ms
+    window: 800ms
