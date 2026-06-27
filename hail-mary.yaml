@@ -1,0 +1,100 @@
+substitutions:
+  name: hail-mary
+  friendly_name: Hail Mary
+
+packages:
+  base: !include common/base.yaml
+
+logger:
+  level: DEBUG
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+output:
+  - platform: gpio
+    id: spin_phase
+    pin: GPIO5
+
+  - platform: ledc
+    id: spin_pwm
+    pin: GPIO6
+    channel: 0
+    frequency: 20 kHz
+
+  - platform: ledc
+    id: led_a
+    pin: GPIO0
+    channel: 2
+    frequency: 1 kHz
+
+  - platform: ledc
+    id: led_b
+    pin: GPIO1
+    channel: 3
+    frequency: 1 kHz
+
+  - platform: ledc
+    id: led_c
+    pin: GPIO3
+    channel: 4
+    frequency: 1 kHz
+
+  - platform: ledc
+    id: led_d
+    pin: GPIO4
+    channel: 5
+    frequency: 1 kHz
+
+  - platform: rmt_carrier_dimmer
+    id: led_w
+    pin: GPIO7
+
+fan:
+  - platform: template
+    id: spin
+    name: "Spin"
+    has_direction: true
+    speed_count: 100
+    icon: mdi:atom-variant
+    on_state:
+      - lambda: |-
+          bool enabled = x->state;
+          float level = enabled ? x->speed / 100.0f : 0.0f;
+
+          if (enabled && x->direction == FanDirection::REVERSE) {
+            id(spin_phase).turn_on();
+          } else {
+            id(spin_phase).turn_off();
+          }
+
+          id(spin_pwm).set_level(level);
+
+light:
+  - platform: monochromatic
+    name: "Base"
+    icon: mdi:vector-square
+    output: led_a
+    default_transition_length: 0.3s
+  - platform: monochromatic
+    name: "Ring"
+    icon: mdi:sphere
+    output: led_b
+    default_transition_length: 0.3s
+  - platform: monochromatic
+    name: "Channel C"
+    icon: mdi:sphere
+    output: led_c
+    default_transition_length: 0.3s
+  - platform: monochromatic
+    name: "Channel D"
+    icon: mdi:sphere
+    output: led_d
+    default_transition_length: 0.3s
+  - platform: monochromatic
+    name: "Ship"
+    icon: mdi:rocket-outline
+    output: led_w
+    default_transition_length: 0.3s
