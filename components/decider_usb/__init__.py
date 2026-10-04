@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome import automation
-from esphome.components import esp32
+from esphome.components import esp32, tinyusb
 from esphome.components.esp32 import (
     VARIANT_ESP32P4,
     VARIANT_ESP32S2,
@@ -12,6 +12,9 @@ from esphome.const import CONF_ID
 
 AUTO_LOAD = ["tinyusb"]
 DEPENDENCIES = ["tinyusb"]
+
+# ESPHome 2026.8 validates USB classes against this internal registry.
+tinyusb._USB_CLASS_COMPONENTS = (*tinyusb._USB_CLASS_COMPONENTS, "decider_usb")
 
 CONF_CHOICE_TYPE = "choice_type"
 CONF_ENTRY_ID = "entry_id"
@@ -64,6 +67,11 @@ async def to_code(config):
     add_idf_sdkconfig_option("CONFIG_TINYUSB_CDC_ENABLED", False)
     add_idf_sdkconfig_option("CONFIG_TINYUSB_MSC_BUFSIZE", 512)
 
+    # The virtual disk owns the MSC callbacks; do not pull in esp_tinyusb's
+    # physical-storage implementation through its USB mount hooks.
+    cg.add_build_flag("-Wl,--wrap=msc_storage_mount_to_app")
+    cg.add_build_flag("-Wl,--wrap=msc_storage_mount_to_usb")
+
     if CONF_INITIAL_BOOT_OPTION in config:
         initial = config[CONF_INITIAL_BOOT_OPTION]
         choice_type = initial[CONF_CHOICE_TYPE]
@@ -89,6 +97,7 @@ SET_BOOT_OPTION_ACTION_SCHEMA = cv.All(
     "decider_usb.set_boot_option",
     SetBootOptionAction,
     SET_BOOT_OPTION_ACTION_SCHEMA,
+    synchronous=True,
 )
 async def decider_usb_set_boot_option_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)

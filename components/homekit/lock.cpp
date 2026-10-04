@@ -412,7 +412,7 @@ void LockEntity::setup() {
                      std::to_string(ptrToLock->get_object_id_hash()).c_str()));
   if (!ptrToLock->is_internal())
     ptrToLock->add_on_state_callback(
-        [this]() { LockEntity::on_lock_update(ptrToLock); });
+        [this](lock::LockState) { LockEntity::on_lock_update(ptrToLock); });
 
   ESP_LOGI(TAG, "Lock '%s' linked to HomeKit", accessory_name.c_str());
 }

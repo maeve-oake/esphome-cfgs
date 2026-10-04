@@ -3,8 +3,12 @@ substitutions:
   friendly_name: Living room Voice
 
 packages:
-  voice: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml@dev
+  voice: github://esphome/home-assistant-voice-pe/home-assistant-voice.yaml@26.9.0
   base: !include common/base.yaml
+
+external_components:
+  - source: github://esphome/home-assistant-voice-pe@26.9.0
+    components: [voice_kit]
 
 esphome:
   name_add_mac_suffix: false

@@ -92,6 +92,7 @@ switch:
   - platform: template
     name: "Elster"
     icon: mdi:desktop-classic
+    restore_mode: DISABLED
     lambda: |-
       return id(state).state == "On";
     turn_on_action:

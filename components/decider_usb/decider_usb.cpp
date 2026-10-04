@@ -322,7 +322,7 @@ void DeciderUsb::set_boot_option(const std::string &choice_type, const std::opti
 
   if (content.size() > FILE_MAX_SIZE) {
     ESP_LOGE(TAG, "set_boot_option failed: content too long (%u > %u).", static_cast<unsigned>(content.size()),
-             FILE_MAX_SIZE);
+             static_cast<unsigned>(FILE_MAX_SIZE));
     return;
   }
 
@@ -335,6 +335,10 @@ void DeciderUsb::set_boot_option(const std::string &choice_type, const std::opti
 }  // namespace esphome::decider_usb
 
 extern "C" {
+
+// This virtual disk has no physical storage to mount or unmount.
+void __wrap_msc_storage_mount_to_app(void) {}
+void __wrap_msc_storage_mount_to_usb(void) {}
 
 uint8_t tud_msc_get_maxlun_cb(void) { return 0; }
 
