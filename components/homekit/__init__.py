@@ -1,7 +1,7 @@
 from esphome import automation
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import mdns, wifi, light, lock, sensor, switch, climate, pn532, fan
+from esphome.components import mdns, wifi, light, lock, sensor, switch, climate, pn532, fan, binary_sensor
 from esphome.const import PLATFORM_ESP32, CONF_ID, CONF_TRIGGER_ID
 from esphome.core import ID, Lambda
 from esphome.components.esp32 import add_idf_component
@@ -58,6 +58,7 @@ CONFIG_SCHEMA = cv.All(cv.Schema({
     cv.GenerateID() : cv.declare_id(HAPAccessory),
     cv.Optional("light"): cv.ensure_list({cv.Required(CONF_ID): cv.use_id(light.LightState), cv.Optional("meta") : ACCESSORY_INFORMATION}),
     cv.Optional("lock"):  cv.ensure_list({cv.Required(CONF_ID): cv.use_id(lock.Lock), cv.Optional("nfc_id") : cv.use_id(pn532.PN532),
+        cv.Optional("doorbell_sensor_id"): cv.use_id(binary_sensor.BinarySensor),
         cv.Optional("on_hk_success"): automation.validate_automation(
             {
                 cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(OnHkSuccessTrigger),
@@ -100,6 +101,8 @@ async def to_code(config):
     if 'lock' in config:
         for l in config["lock"]:
             lock_entity = cg.Pvariable(ID(f"{l['id'].id}_hk_lock_entity", type=LockEntity), var.add_lock(await cg.get_variable(l['id'])))
+            if "doorbell_sensor_id" in l:
+                cg.add(lock_entity.set_doorbell_sensor(await cg.get_variable(l["doorbell_sensor_id"])))
             if "nfc_id" in l:
                 cg.add_build_flag("-fexceptions")
                 cg.add_platformio_option("build_unflags", "-fno-exceptions")

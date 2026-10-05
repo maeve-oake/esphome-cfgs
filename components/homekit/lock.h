@@ -6,6 +6,9 @@
 #include <hap_apple_servs.h>
 #include <hap_apple_chars.h>
 #include "hap_entity.h"
+#ifdef USE_BINARY_SENSOR
+#include "esphome/components/binary_sensor/binary_sensor.h"
+#endif
 #ifdef USE_HOMEKEY
 #include <nvs.h>
 #include "const.h"
@@ -50,11 +53,22 @@ namespace esphome
       static void on_lock_update(lock::Lock* obj);
       static int lock_write(hap_write_data_t write_data[], int count, void* serv_priv, void* write_priv);
       static int acc_identify(hap_acc_t* ha);
+#ifdef USE_BINARY_SENSOR
+      binary_sensor::BinarySensor *doorbell_sensor_{nullptr};
+      hap_char_t *doorbell_event_{nullptr};
+      hap_char_t *doorbell_switch_event_{nullptr};
+      void setup_doorbell_(hap_acc_t *accessory);
+      void ring_doorbell_();
+      static int speaker_write(hap_write_data_t write_data[], int count, void *serv_priv, void *write_priv);
+#endif
 
 
       public:
       LockEntity(lock::Lock* lockPtr);
       void setup();
+#ifdef USE_BINARY_SENSOR
+      void set_doorbell_sensor(binary_sensor::BinarySensor *sensor) { this->doorbell_sensor_ = sensor; }
+#endif
       #ifdef USE_HOMEKEY
       void set_nfc_ctx(pn532::PN532* ctx);
       void set_hk_hw_finish(HKFinish color);

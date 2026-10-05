@@ -356,6 +356,60 @@ void LockEntity::set_nfc_ctx(pn532::PN532 *ctx) {
 }
 #endif
 
+#ifdef USE_BINARY_SENSOR
+void LockEntity::setup_doorbell_(hap_acc_t *accessory) {
+  // This SDK predates helpers for Doorbell (121), Speaker (113), and Mute (11A).
+  static char doorbell_uuid[] = "121";
+  static char speaker_uuid[] = "113";
+  static char mute_uuid[] = "11A";
+
+  hap_serv_t *doorbell = hap_serv_create(doorbell_uuid);
+  this->doorbell_event_ = hap_char_programmable_switch_event_create(0);
+  hap_char_int_set_constraints(this->doorbell_event_, 0, 0, 1);
+  hap_serv_add_char(doorbell, this->doorbell_event_);
+  hap_serv_mark_primary(doorbell);
+  hap_acc_add_serv(accessory, doorbell);
+
+  hap_serv_t *button = hap_serv_stateless_programmable_switch_create(0);
+  this->doorbell_switch_event_ = hap_serv_get_char_by_uuid(button, HAP_CHAR_UUID_PROGRAMMABLE_SWITCH_EVENT);
+  hap_char_int_set_constraints(this->doorbell_switch_event_, 0, 0, 1);
+  hap_acc_add_serv(accessory, button);
+
+  hap_serv_t *speaker = hap_serv_create(speaker_uuid);
+  hap_serv_add_char(speaker, hap_char_bool_create(mute_uuid, HAP_CHAR_PERM_PR | HAP_CHAR_PERM_PW | HAP_CHAR_PERM_EV, false));
+  hap_serv_set_write_cb(speaker, speaker_write);
+  hap_acc_add_serv(accessory, speaker);
+
+  this->doorbell_sensor_->add_on_state_callback([this](bool ringing) {
+    if (ringing)
+      this->ring_doorbell_();
+  });
+  ESP_LOGI(TAG, "Doorbell sensor linked to HomeKit lock '%s'", this->ptrToLock->get_name().c_str());
+}
+
+void LockEntity::ring_doorbell_() {
+  hap_val_t press{};
+  press.i = 0;  // ProgrammableSwitchEvent: single press.
+  // The SDK helper sets SPECIAL_READ, so successive single presses each notify.
+  int doorbell_result = hap_char_update_val(this->doorbell_event_, &press);
+  int button_result = hap_char_update_val(this->doorbell_switch_event_, &press);
+  if (doorbell_result == HAP_SUCCESS && button_result == HAP_SUCCESS)
+    ESP_LOGI(TAG, "HomeKit doorbell rang for '%s'", this->ptrToLock->get_name().c_str());
+  else
+    ESP_LOGW(TAG, "Failed to publish HomeKit doorbell press");
+}
+
+int LockEntity::speaker_write(hap_write_data_t write_data[], int count, void *serv_priv, void *write_priv) {
+  for (int i = 0; i < count; i++) {
+    auto *write = &write_data[i];
+    *(write->status) = hap_char_update_val(write->hc, &write->val) == HAP_SUCCESS
+                           ? HAP_STATUS_SUCCESS
+                           : HAP_STATUS_VAL_INVALID;
+  }
+  return HAP_SUCCESS;
+}
+#endif
+
 void LockEntity::setup() {
   hap_acc_cfg_t acc_cfg = {
       .model = strdup(accessory_info[MODEL]),
@@ -404,6 +458,12 @@ void LockEntity::setup() {
   hap_serv_set_priv(nfcAccess, this);
   hap_serv_set_write_cb(nfcAccess, nfcAccess_write);
   hap_acc_add_serv(accessory, nfcAccess);
+#endif
+
+#ifdef USE_BINARY_SENSOR
+  // Append services so the existing lock/HomeKey characteristic IIDs stay stable.
+  if (this->doorbell_sensor_ != nullptr)
+    this->setup_doorbell_(accessory);
 #endif
 
   /* Add the Accessory to the HomeKit Database */

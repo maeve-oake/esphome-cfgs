@@ -22,6 +22,8 @@ esphome:
       name: "Quinetic Zoë"
     - id: quinetic_front_door
       name: "Quinetic Front door"
+    - id: tecknet_doorbell
+      name: "Tecknet Doorbell"
 
 #
 # Quinetic starts here
@@ -43,6 +45,22 @@ binary_sensor:
     device_id: quinetic_front_door
     name: "Doorbell"
     address: 0xFF86
+  - platform: remote_receiver
+    id: front_door_ringing
+    receiver_id: radio_1_rx
+    device_id: tecknet_doorbell
+    name: "Front Door Ringing"
+    device_class: sound
+    icon: mdi:bell-ring
+    rc_switch_raw:
+      code: "0000001110000100110010"
+      protocol:
+        pulse_length: 50
+        sync: [1, 31]
+        zero: [1, 3]
+        one: [3, 1]
+    filters:
+      - delayed_off: 3s
 
 light:
   - platform: quinetic
@@ -60,9 +78,17 @@ light:
 # RF Remote starts here
 #
 
+cc1101:
+  - id: !extend radio_1
+    filter_bandwidth: 650kHz
+    symbol_rate: 20000
+
 remote_receiver:
   id: radio_1_rx
   pin: ${radio_1_gdo2}
+  filter: 20us
+  idle: 2ms
+  tolerance: 35%
   on_rc_switch:
     - lambda: |-
         if ((x.code >> 8) != 0xE409)
