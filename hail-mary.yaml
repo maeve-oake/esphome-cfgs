@@ -28,73 +28,72 @@ output:
     id: led_a
     pin: GPIO0
     channel: 2
-    frequency: 1 kHz
+    frequency: 20 kHz
 
   - platform: ledc
     id: led_b
     pin: GPIO1
-    channel: 3
-    frequency: 1 kHz
+    channel: 5
+    frequency: 20 kHz
 
   - platform: ledc
     id: led_c
     pin: GPIO3
     channel: 4
-    frequency: 1 kHz
+    frequency: 20 kHz
 
   - platform: ledc
     id: led_d
     pin: GPIO4
-    channel: 5
-    frequency: 1 kHz
+    channel: 3
+    frequency: 20 kHz
 
   - platform: rmt_carrier_dimmer
     id: led_w
     pin: GPIO7
+    envelope_frequency: 20 kHz
 
 fan:
   - platform: template
-    id: spin
     name: "Spin"
     has_direction: true
-    speed_count: 100
+    preset_modes:
+      - Low
+      - Medium
+      - High
     icon: mdi:atom-variant
     on_state:
       - lambda: |-
-          bool enabled = x->state;
-          float level = enabled ? x->speed / 100.0f : 0.0f;
-
-          if (enabled && x->direction == FanDirection::REVERSE) {
-            id(spin_phase).turn_on();
-          } else {
-            id(spin_phase).turn_off();
-          }
-
-          id(spin_pwm).set_level(level);
+          const auto preset = x->get_preset_mode();
+          const float level = preset == "High" ? 1.0f : preset == "Medium" ? 0.7f : 0.5f;
+          id(spin_phase).set_state(x->state && x->direction == FanDirection::REVERSE);
+          id(spin_pwm).set_level(x->state ? level : 0.0f);
 
 light:
-  - platform: monochromatic
+  - platform: ranged_light
     name: "Base"
     icon: mdi:vector-square
-    output: led_a
+    outputs: [led_a]
+    min_brightness: 10%
+    max_brightness: 40%
     default_transition_length: 0.3s
-  - platform: monochromatic
+  - platform: ranged_light
     name: "Ring"
     icon: mdi:sphere
-    output: led_b
+    outputs: [led_b, led_c]
+    min_brightness: 10%
+    max_brightness: 40%
     default_transition_length: 0.3s
-  - platform: monochromatic
-    name: "Channel C"
-    icon: mdi:sphere
-    output: led_c
-    default_transition_length: 0.3s
-  - platform: monochromatic
-    name: "Channel D"
-    icon: mdi:sphere
-    output: led_d
-    default_transition_length: 0.3s
-  - platform: monochromatic
+  # unused channel...
+  # - platform: monochromatic
+  #   name: "Channel D"
+  #   icon: mdi:sphere
+  #   output: led_d
+  #   default_transition_length: 0.3s
+  - platform: ranged_light
     name: "Ship"
     icon: mdi:rocket-outline
-    output: led_w
+    outputs: [led_w]
+    min_brightness: 30%
+    max_brightness: 70%
     default_transition_length: 0.3s
