@@ -63,14 +63,14 @@ async def setup_pn532(var, config):
         trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID])
         cg.add(var.register_ontag_trigger(trigger))
         await automation.build_automation(
-            trigger, [(cg.std_string, "x"), (nfc.NfcTag, "tag")], conf
+            trigger, [(cg.std_string, "x"), (nfc.NfcTagConstRef, "tag")], conf
         )
 
     for conf in config.get(CONF_ON_TAG_REMOVED, []):
         trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID])
         cg.add(var.register_ontagremoved_trigger(trigger))
         await automation.build_automation(
-            trigger, [(cg.std_string, "x"), (nfc.NfcTag, "tag")], conf
+            trigger, [(cg.std_string, "x"), (nfc.NfcTagConstRef, "tag")], conf
         )
 
     for conf in config.get(CONF_ON_FINISHED_WRITE, []):

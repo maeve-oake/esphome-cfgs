@@ -306,9 +306,9 @@ void LockEntity::set_nfc_ctx(pn532::PN532 *ctx) {
   nfc_ctx = ctx;
   auto trigger = new nfc::NfcOnTagTrigger();
   ctx->register_ontag_trigger(trigger);
-  auto automation_id_3 = new Automation<std::string, nfc::NfcTag>(trigger);
-  auto lambdaaction_id_3 = new LambdaAction<std::string, nfc::NfcTag>(
-      [this, ctx](std::string x, nfc::NfcTag tag) -> void {
+  auto automation_id_3 = new Automation<std::string, const nfc::NfcTag &>(trigger);
+  auto lambdaaction_id_3 = new LambdaAction<std::string, const nfc::NfcTag &>(
+      [this, ctx](std::string x, const nfc::NfcTag &tag) -> void {
         std::function<bool(uint8_t *, uint8_t, uint8_t *, uint16_t *, bool)>
             lambda = [=](uint8_t *send, uint8_t sendLen, uint8_t *res,
                          uint16_t *resLen, bool ignoreLog) -> bool {

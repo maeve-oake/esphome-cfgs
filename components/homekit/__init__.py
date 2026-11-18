@@ -4,7 +4,12 @@ import esphome.config_validation as cv
 from esphome.components import mdns, wifi, light, lock, sensor, switch, climate, pn532, fan, binary_sensor
 from esphome.const import PLATFORM_ESP32, CONF_ID, CONF_TRIGGER_ID
 from esphome.core import ID, Lambda
-from esphome.components.esp32 import add_idf_component
+from esphome.components.esp32 import (
+    add_idf_component,
+    add_idf_sdkconfig_option,
+    require_mbedtls_ecp,
+    require_mbedtls_tls_extras,
+)
 from .. import homekit_base
 
 AUTO_LOAD = ["homekit_base"]
@@ -104,8 +109,9 @@ async def to_code(config):
             if "doorbell_sensor_id" in l:
                 cg.add(lock_entity.set_doorbell_sensor(await cg.get_variable(l["doorbell_sensor_id"])))
             if "nfc_id" in l:
-                cg.add_build_flag("-fexceptions")
-                cg.add_platformio_option("build_unflags", "-fno-exceptions")
+                add_idf_sdkconfig_option("CONFIG_COMPILER_CXX_EXCEPTIONS", True)
+                require_mbedtls_ecp()
+                require_mbedtls_tls_extras(["CONFIG_MBEDTLS_ECDSA_DETERMINISTIC"])
                 nfc = await cg.get_variable(l["nfc_id"])
                 cg.add(var.set_nfc_ctx(nfc))
                 cg.add(var.set_hk_hw_finish(l["hk_hw_finish"]))

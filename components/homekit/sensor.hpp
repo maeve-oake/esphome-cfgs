@@ -61,7 +61,8 @@ namespace esphome
       void setup() {
         hap_serv_t* service = nullptr;
 
-        std::string device_class = sensorPtr->get_device_class();
+        char device_class_buffer[MAX_DEVICE_CLASS_LENGTH];
+        std::string device_class = sensorPtr->get_device_class_to(device_class_buffer);
         if (std::equal(device_class.begin(), device_class.end(), strdup("temperature"))) {
           service = hap_serv_temperature_sensor_create(sensorPtr->state);
         }

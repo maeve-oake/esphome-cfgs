@@ -2,8 +2,10 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import mdns, wifi, light, lock, sensor, switch
 from esphome.const import CONF_PORT, PLATFORM_ESP32, CONF_ID
-from esphome.core import ID, Lambda
+from esphome.core import CORE, ID, Lambda
+from esphome.coroutine import CoroPriority, coroutine_with_priority
 from esphome.components.esp32 import add_idf_component, add_idf_sdkconfig_option
+from pathlib import Path
 import re
 
 DEPENDENCIES = ['esp32', 'network']
@@ -47,7 +49,23 @@ CONFIG_SCHEMA = cv.All(cv.Schema({
 }).extend(cv.COMPONENT_SCHEMA),
 cv.only_on([PLATFORM_ESP32]))
 
+@coroutine_with_priority(CoroPriority.LATE)
+async def unify_libsodium():
+    # Register after ESPHome's noise component so both namespaces use one provider.
+    path = str(Path(__file__).with_name("libsodium"))
+    for name in ("libsodium", "esphome/libsodium", "espressif/libsodium"):
+        add_idf_component(name=name, path=path)
+
+
 async def to_code(config):
+    CORE.add_job(unify_libsodium)
+    # HomeKit needs Ed25519 signing, which ESPHome's trimmed libsodium omits.
+    add_idf_component(
+        name="libsodium_full",
+        repo="https://github.com/espressif/idf-extra-components.git",
+        ref="1e32ecf000d79db25389d44d29d04b61b72154d4",
+        path="libsodium",
+    )
     add_idf_component(
         name="esp_hap_core",
         repo="https://github.com/rednblkx/esp-homekit-sdk",
